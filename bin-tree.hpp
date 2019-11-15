@@ -24,26 +24,32 @@ enum ERR_CODE
 template <typename T>
 class Tree_t
 {
+protected:
+    long node_counter;
 public:
     ///@brief Node struct
     struct Node_t
     {
-        T data = 0;
-        Node_t *right = nullptr;
-        Node_t *left = nullptr;
+        T data;
+        Node_t *right;
+        Node_t *left;
 
-        Node_t (): right (nullptr), left (nullptr), data (0)
+        Node_t ():
+            right (nullptr),
+            left (nullptr),
+            data (0)
         {};
     } *head;
 
     ///@brief Constructor of Tree_t
-    Tree_t ()
+    Tree_t ():
+        node_counter (1)
     {
         head = new Node_t;
     }
 
     ///@brief Destructor of Tree_t
-    ~Tree_t ()
+    virtual ~Tree_t ()
     {
         free_tree (head);
     }
@@ -66,6 +72,7 @@ public:
 
         node -> right = new Node_t;
         node -> right -> data = data;
+        node_counter++;
         return OK;
     }
 
@@ -78,6 +85,7 @@ public:
 
         node -> left = new Node_t;
         node -> left -> data = data;
+        node_counter++;
         return OK;
     }
 
@@ -88,6 +96,7 @@ public:
         if (!node)                               return NOT_EXIST;
         if ((*node) -> right || (*node) -> left) return NOT_LEAF;
         free (*node);
+        node_counter--;
         *node = nullptr;
     }
 
@@ -141,7 +150,7 @@ public:
         system  ("dot -Tpng Tree_draw.dot -o tree_draw.png");
     }
 
-    void draw (char* arg)
+    void draw (const char* arg)
     {
         draw ();
         if ( strcmp (arg, "open") == 0 )
@@ -170,13 +179,13 @@ public:
 
 protected:
     ///@brief A function for destructor... and btw it's private so it's NOT UR BUSINESS
-    void free_tree (Node_t *tree)
+    virtual void free_tree (Node_t *tree)
     {
         if (tree)
         {
             free_tree (tree -> left );
             free_tree (tree -> right);
-            free (tree);
+            delete tree;
         }
     }
 
@@ -233,6 +242,5 @@ protected:
     {
         fprintf (stream, "%lf", value);
     }
-
 };
 #endif
